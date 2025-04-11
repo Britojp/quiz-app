@@ -1,74 +1,102 @@
 <template>
   <v-app theme="dark">
-    <v-container class="py-10" style="background-color: #000; min-height: 100vh;" fluid>
-      <v-card
-        class="mx-auto px-6 py-6"
-        max-width="700"
-        style="background-color: #4A148C; color: white;"
-        elevation="12"
-      >
-        <v-card-title class="text-h5 font-weight-bold d-flex justify-space-between align-center">
-          <div>
-            Pergunta {{ currentQuestionIndex + 1 }} de {{ questions.length }}
-          </div>
-          <div class="text-caption font-weight-light">⏱️ {{ timeLeft }}s</div>
-        </v-card-title>
-
-        <v-progress-linear
-          :value="(timeLeft / totalTime) * 100"
-          height="8"
-          color="deep-purple-lighten-1"
-          class="mb-4"
-          striped
-          :indeterminate="!answered && timeLeft === 0"
-        />
-
-        <v-card-subtitle class="text-subtitle-1">
-          Dificuldade: {{ currentQuestion.difficulty || 'N/A' }}<br />
-          Categoria: {{ currentQuestion.category || 'N/A' }}
-        </v-card-subtitle>
-
-        <v-card-text class="text-subtitle-1 my-4">
-          {{ decodeHTML(currentQuestion.question) }}
-        </v-card-text>
-
-        <v-card-text>
-          <v-btn
-            v-for="(option, index) in currentQuestion.options"
-            :key="index"
-            class="my-2"
-            block
-            :color="getOptionColor(option)"
-            :variant="answered ? 'flat' : 'elevated'"
-            :disabled="answered"
-            @click="selectAnswer(option)"
+    <v-container fluid class="py-10" style="background-color: #000; min-height: 100vh;">
+      <v-row>
+        <v-col cols="12" md="8">
+          <v-card
+            class="px-6 py-6"
+            style="background-color: #4A148C; color: white; border-radius: 16px;"
+            elevation="12"
           >
-            {{ decodeHTML(option) }}
-          </v-btn>
+            <v-card-title class="text-h5 font-weight-bold d-flex justify-space-between align-center">
+              <div>
+                {{ decodeHTML(currentQuestion.question) }}
+              </div>
+              <div class="text-caption font-weight-light">⏱️ {{ timeLeft }}s</div>
+            </v-card-title>
 
-          <div v-if="answered" class="mt-4 text-subtitle-2">
-            <span :class="isCorrect ? 'text-green' : 'text-red'">
-              {{ isCorrect ? '✅ Resposta correta!' : '❌ Resposta incorreta.' }}
-            </span>
-          </div>
-        </v-card-text>
+            <v-progress-linear
+              :value="(timeLeft / totalTime) * 100"
+              height="8"
+              color="deep-purple-lighten-1"
+              class="mb-4"
+              striped
+              :indeterminate="!answered && timeLeft === 0"
+            />
 
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            v-if="answered || timeLeft === 0"
-            @click="nextQuestion"
-            color="deep-purple-darken-3"
-            variant="flat"
-            class="text-white"
-          >
-            Próxima
-          </v-btn>
-        </v-card-actions>
-      </v-card>
+            <v-card-subtitle class="text-subtitle-1">
+              Dificuldade: {{ currentQuestion.difficulty || 'N/A' }}<br />
+              Categoria: {{ currentQuestion.category || 'N/A' }}
+            </v-card-subtitle>
+
+            <v-card-text>
+              <v-btn
+                v-for="(option, index) in currentQuestion.options"
+                :key="index"
+                class="my-2"
+                block
+                :color="getOptionColor(option)"
+                :variant="answered ? 'flat' : 'elevated'"
+                :disabled="answered"
+                @click="selectAnswer(option)"
+              >
+                {{ decodeHTML(option) }}
+              </v-btn>
+
+              <div v-if="answered" class="mt-4 text-subtitle-2 text-center">
+                <span :class="isCorrect ? 'text-green' : 'text-red'">
+                  {{ isCorrect ? '✅ Resposta correta!' : '❌ Resposta incorreta.' }}
+                </span>
+              </div>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                v-if="answered || timeLeft === 0"
+                @click="nextQuestion"
+                color="deep-purple-darken-3"
+                variant="flat"
+                class="text-white"
+              >
+                Próxima
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="4" class="pt-4 pt-md-0 d-flex flex-column align-center">
+          <v-card class="mb-6 mx-auto" elevation="10" max-width="300" style="background-color: #311B92; color: white; border-radius: 16px;">
+            <v-card-title class="text-h6 font-weight-bold text-center">Pontuação 1</v-card-title>
+            <v-card-text class="d-flex justify-center align-center">
+              <v-btn icon @click="pontos1--" color="red-darken-2" class="mx-2">
+                <v-icon>mdi-minus</v-icon>
+              </v-btn>
+              <span class="text-h4 font-weight-bold mx-3">{{ pontos1 }}</span>
+              <v-btn icon @click="pontos1++" color="green-darken-2" class="mx-2">
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+            </v-card-text>
+          </v-card>
+
+          <v-card class="mx-auto" elevation="10" max-width="300" style="background-color: #311B92; color: white; border-radius: 16px;">
+            <v-card-title class="text-h6 font-weight-bold text-center">Pontuação 2</v-card-title>
+            <v-card-text class="d-flex justify-center align-center">
+              <v-btn icon @click="pontos2--" color="red-darken-2" class="mx-2">
+                <v-icon>mdi-minus</v-icon>
+              </v-btn>
+              <span class="text-h4 font-weight-bold mx-3">{{ pontos2 }}</span>
+              <v-btn icon @click="pontos2++" color="green-darken-2" class="mx-2">
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
     </v-container>
   </v-app>
 </template>
+
 
 <script>
 import axios from 'axios'
